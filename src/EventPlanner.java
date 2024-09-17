@@ -14,6 +14,10 @@ public class EventPlanner {
         EventListPanel eventListPanel = new EventListPanel();
         frame.add(eventListPanel);
         frame.pack();
+
+        addDefaultEvents(eventListPanel);
+
+        frame.setVisible(true);
     }
 
     public static void addDefaultEvents(EventListPanel eventListPanel) {
