@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.time.Duration;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class EventPlanner {
     public static void main(String[] args) {
@@ -23,18 +23,21 @@ public class EventPlanner {
     public static void addDefaultEvents(EventListPanel eventListPanel) {
         // Create new deadline
         String deadlineName = "Lab Two";
-        Deadline deadline = new Deadline(deadlineName, new Date());
+        LocalDateTime deadlineDate = LocalDateTime.of(2024, 9, 25, 15, 0);
+        Deadline deadline = new Deadline(deadlineName, deadlineDate);
 
         // Create new meeting
-        String meetingName = "CSCI-3381 Lecture";
+        String meetingName = "Exam 2";
         String location = "MCS 339";
-        Date startDate = new Date();
-        Date endDate = new Date(startDate.getTime() - Duration.ofHours(1).toMillis());
+        LocalDateTime startDate = LocalDateTime.of(2024, 10, 4, 15, 0);
+        LocalDateTime endDate = startDate.plus(Duration.ofMinutes(50));
 
         Meeting meeting = new Meeting(meetingName, startDate, endDate, location);
-
         // Add deadline and meeting to the Event List Panel
         eventListPanel.events.add(deadline);
         eventListPanel.events.add(meeting);
+
+        // Update display
+        eventListPanel.updateEventDisplay();
     }
 }

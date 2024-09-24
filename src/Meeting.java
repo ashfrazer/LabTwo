@@ -1,12 +1,13 @@
-import java.util.Date;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Meeting extends Event implements Completable {
-    private Date endDateTime;
+    private LocalDateTime endDateTime;
     private String location;
     private boolean complete;
 
     // Constructor
-    public Meeting(String name, Date dateTime, Date endDateTime, String location) {
+    public Meeting(String name, LocalDateTime dateTime, LocalDateTime endDateTime, String location) {
         super(name, dateTime);
         this.endDateTime = endDateTime;
         this.location = location;
@@ -15,7 +16,7 @@ public class Meeting extends Event implements Completable {
 
     @Override
     public void complete() {
-        this.complete = true;
+        complete = !complete; // Allows users to toggle completion status in menu
     }
 
     @Override
@@ -24,12 +25,12 @@ public class Meeting extends Event implements Completable {
     }
 
     // Retrieves end time of meeting
-    public Date getEndDateTime() {
+    public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
 
     // Sets end time of meeting
-    public void setEndDateTime(Date endDateTime) {
+    public void setEndDateTime(LocalDateTime endDateTime) {
         this.endDateTime = endDateTime;
     }
 
@@ -44,9 +45,14 @@ public class Meeting extends Event implements Completable {
     }
 
     // Retrieves duration of meeting
-    public int getDuration() {
-        float durationMS = endDateTime.getTime() - getDateTime().getTime();
-        return (int) (durationMS / (1000 * 60)); // Converts milliseconds to seconds
+    public int getDurationHours() {
+        Duration duration = Duration.between(getDateTime(), endDateTime);
+        return (int) duration.toHours();
+    }
+
+    public int getDurationMinutes() {
+        Duration duration = Duration.between(getDateTime(), endDateTime);
+        return (int) duration.toMinutes();
     }
 
 }
