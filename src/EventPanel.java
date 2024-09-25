@@ -2,11 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class EventPanel extends JPanel {
-    // Event details labels
-    private JLabel nameLabel;
-    private JLabel timeLabel;
-    private JLabel locationLabel;
-    private JLabel durationLabel;
     private JLabel completedLabel;
 
     // Constructor
@@ -14,8 +9,8 @@ public class EventPanel extends JPanel {
         setLayout(new BorderLayout());
 
         // Name and time labels
-        nameLabel = new JLabel("Name: " + event.getName());
-        timeLabel = new JLabel("Date: " + event.getDateTime().toString());
+        JLabel nameLabel = new JLabel("Name: " + event.getName());
+        JLabel timeLabel = new JLabel("Date: " + event.getDateTime().toString());
 
         // Panel for event details
         JPanel mainPanel = new JPanel();
@@ -26,8 +21,8 @@ public class EventPanel extends JPanel {
         // Check if event is a meeting
         if (event instanceof Meeting meeting) {
             // Add location, duration, and completed labels
-            locationLabel = new JLabel("Location: " + meeting.getLocation());
-            durationLabel = new JLabel("Duration: " + meeting.getDurationMinutes() + " minutes");
+            JLabel locationLabel = new JLabel("Location: " + meeting.getLocation());
+            JLabel durationLabel = new JLabel("Duration: " + meeting.getDurationMinutes() + " minutes");
             completedLabel = new JLabel("Completed: " + meeting.isComplete());
 
             JPanel extraDetailsPanel = new JPanel();
@@ -40,7 +35,7 @@ public class EventPanel extends JPanel {
         }
 
         if (event instanceof Deadline deadline) {
-            // Add completed label
+            // Add Completed label to display completion status of event
             completedLabel = new JLabel("Completed: " + deadline.isComplete());
             JPanel extraDetailsPanel = new JPanel();
             extraDetailsPanel.setLayout(new BoxLayout(extraDetailsPanel, BoxLayout.Y_AXIS));
@@ -51,6 +46,7 @@ public class EventPanel extends JPanel {
 
         add(mainPanel, BorderLayout.CENTER);
 
+        // Mark Complete button
         if (event instanceof Completable completableEvent) {
             JButton completeButton = new JButton("Click to Complete");
             completeButton.addActionListener(e -> {
@@ -61,7 +57,7 @@ public class EventPanel extends JPanel {
                     completableEvent.complete(); // Mark as complete
                 }
 
-                // Update completedLabel text
+                // Update completedLabel text (true/false)
                 completedLabel.setText("Completed: " + completableEvent.isComplete());
             });
             add(completeButton, BorderLayout.SOUTH);

@@ -13,6 +13,9 @@ public class AddEventModal extends JDialog {
     private final JTextField endTimeField;
     private final JTextField locationField;
     private final JComboBox<String> eventTypeComboBox;
+    private final JLabel startTimeLabel;
+    private final JLabel endTimeLabel;
+    private final JLabel locationLabel;
 
     // Constructor
     public AddEventModal(EventListPanel eventListPanel) {
@@ -22,9 +25,11 @@ public class AddEventModal extends JDialog {
         setModal(true);
         setLayout(new GridLayout(0, 2)); // 2 columns: Label & TextField
 
-        // Prompt user for event type
+        // Prompt user for event type (Drop down box)
         add(new JLabel("Event Type:"));
         eventTypeComboBox = new JComboBox<>(new String[]{"Meeting", "Deadline"});
+        // Adjust visible labels based on selected event (different fields)
+        eventTypeComboBox.addActionListener(e -> adjustLabelVisibility()); // Add action listener to handle event type change
         add(eventTypeComboBox);
 
         // Event name field
@@ -33,36 +38,66 @@ public class AddEventModal extends JDialog {
         add(nameField);
 
         // Event start time field
-        add(new JLabel("Start Time (YYYY-MM-DD HH:mm):"));
+        startTimeLabel = new JLabel("Start Time: (YYYY-MM-DD HH:mm):");
+        add(startTimeLabel);
         startTimeField = new JTextField();
         add(startTimeField);
 
         // Event end time field
-        add(new JLabel("End Time (YYYY-MM-DD HH:mm):"));
+        endTimeLabel = new JLabel("End Time: (YYYY-MM-DD HH:mm):");
+        add(endTimeLabel);
         endTimeField = new JTextField();
         add(endTimeField);
 
         // Event location field
-        add(new JLabel("Location:"));
+        locationLabel = new JLabel("Location:");
+        add(locationLabel);
         locationField = new JTextField();
         add(locationField);
 
         // Add Event button
         JButton addButton = new JButton("Add Event");
         addButton.addActionListener(new AddEventAction());
-        JButton cancelButton;
 
-        // Create Cancel button if user no longer wants to add event
-        add(cancelButton = new JButton("Cancel"));
+        // Cancel button for when user no longer wants to add event
+        JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(e -> dispose());
 
         // Add buttons
         add(addButton);
         add(cancelButton);
 
+        // Adjusts Add Event modal fields based on event type
+        adjustLabelVisibility();
+
         // Fit content onto panel
         pack();
         setLocationRelativeTo(eventListPanel);
+    }
+
+    // Adjusts the labels displayed on Add Event modal. Meetings and Deadlines have different fields for input.
+    private void adjustLabelVisibility() {
+        String eventType = (String) eventTypeComboBox.getSelectedItem();
+        boolean isDeadline = eventType.equals("Deadline");
+
+        // Adjust visibility based on event type
+        if (isDeadline) { // If event = Deadline
+            startTimeLabel.setText("Due: (YYYY-MM-DD HH:mm)"); // Change label for Deadline
+            // Hide End Time and Location labels/fields for Deadline events
+            endTimeLabel.setVisible(false);
+            endTimeField.setVisible(false);
+            locationLabel.setVisible(false);
+            locationField.setVisible(false);
+        } else { // If event = Meeting
+            // Reset/display End Time and Location labels/fields for Meeting events
+            startTimeLabel.setText("Start Time: (YYYY-MM-DD HH:mm)"); // Reset label for Meetings
+            endTimeLabel.setVisible(true);
+            endTimeField.setVisible(true);
+            locationLabel.setVisible(true);
+            locationField.setVisible(true);
+        }
+        revalidate();
+        repaint();
     }
 
     // Add Event Action logic
@@ -72,27 +107,36 @@ public class AddEventModal extends JDialog {
             // Retrieve name and event type
             String name = nameField.getText();
             String eventType = (String) eventTypeComboBox.getSelectedItem();
-            try {
-                // Parse start and end DateTime from text fields
-                LocalDateTime startDateTime = LocalDateTime.parse(startTimeField.getText(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-                LocalDateTime endDateTime = LocalDateTime.parse(endTimeField.getText(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-                String location = locationField.getText(); // Retrieve location
+            LocalDateTime endDateTime = null; // Initialize to null for Deadlines
+            String location = null; // Initialize to null for Deadlines
 
-                //Create new meeting or deadline based on user input
+            try {
+                // Parse start DateTime from text field
+                LocalDateTime startDateTime = LocalDateTime.parse(startTimeField.getText(),
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+                // Parse fields based on event type
                 if ("Meeting".equals(eventType)) {
+                    endDateTime = LocalDateTime.parse(endTimeField.getText(),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+                    location = locationField.getText();
+
+                    // Create a new Meeting
                     Meeting newMeeting = new Meeting(name, startDateTime, endDateTime, location);
                     eventListPanel.addEvent(newMeeting);
                 } else if ("Deadline".equals(eventType)) {
-                    Deadline newDeadline = new Deadline(name, startDateTime); // Assuming only name and dateTime for Deadline
+                    // Create a new Deadline
+                    Deadline newDeadline = new Deadline(name, startDateTime);
                     eventListPanel.addEvent(newDeadline);
                 }
 
                 dispose();
             } catch (DateTimeParseException ex) {
                 // Display error message if user uses incorrect DateTime format
-                JOptionPane.showMessageDialog(AddEventModal.this, "Invalid date format. Please "+
-                                "use 'YYYY-MM-DD HH:mm'.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(AddEventModal.this, "Invalid date format. " +
+                        "Please use 'YYYY-MM-DD HH:mm'.", "Error", JOptionPane.ERROR_MESSAGE);
             }
+
         }
     }
 }
